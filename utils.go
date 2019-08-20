@@ -7,6 +7,19 @@ import (
 	"os"
 )
 
+// WriteJSON - Write to json file
+func WriteJSON(obj interface{}, filename string) {
+	data, err := json.Marshal(obj)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = ioutil.WriteFile(filename, data, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// ReadJSON - Read JSON
 func ReadJSON(filename string) []map[string]string {
 	// Open our jsonFile
 	jsonFile, err := os.Open(filename)

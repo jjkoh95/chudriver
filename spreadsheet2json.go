@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// CSVResponse2JSON - csv response to JSON
 func CSVResponse2JSON(resp *http.Response) interface{} {
 	reader := csv.NewReader(io.Reader(resp.Body))
 	val, err := reader.ReadAll()

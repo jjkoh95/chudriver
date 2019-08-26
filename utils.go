@@ -20,7 +20,7 @@ func WriteJSON(obj interface{}, filename string) {
 }
 
 // ReadJSON - Read JSON
-func ReadJSON(filename string) []map[string]string {
+func ReadJSON(filename string) []map[string]interface{} {
 	// Open our jsonFile
 	jsonFile, err := os.Open(filename)
 
@@ -33,7 +33,7 @@ func ReadJSON(filename string) []map[string]string {
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
-	var result []map[string]string
+	var result []map[string]interface{}
 	json.Unmarshal([]byte(byteValue), &result)
 
 	return result

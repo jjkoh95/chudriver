@@ -1,6 +1,7 @@
 package gdriver
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -47,27 +48,26 @@ func (service *Service) LoginDocs(credentialFile, scope string) {
 }
 
 // ExportSheetToJSON - export sheet to json file
-func (service *Service) ExportSheetToJSON(sheetID string) {
+func (service *Service) ExportSheetToJSON(sheetID, baseFilePath string) {
 	sheets := service.GetAllSheetTitles(sheetID)
 	for _, sheet := range sheets {
 		// making this fancy
 		go func(sheet string) {
 			resp, err := service.Sheets.Spreadsheets.Values.Get(sheetID, sheet).Do()
 			if err == nil {
-				WriteJSON(resp, sheet)
+				WriteJSON(resp, fmt.Sprintf("%s%s", baseFilePath, sheet))
 			}
 		}(sheet)
 	}
 }
 
 // ExportDoc - export doc to raw text file
-func (service *Service) ExportDoc(documentID string) {
+func (service *Service) ExportDoc(documentID, baseFilePath string) {
 	doc, err := service.Docs.Documents.Get(documentID).Do()
 	if err != nil {
 		log.Println(err.Error())
 	}
-	filename := doc.Title
-	WriteText(readStructuralElements(doc.Body.Content), filename)
+	WriteText(readStructuralElements(doc.Body.Content), fmt.Sprintf("%s%s", baseFilePath, doc.Title))
 }
 
 // GetAllSheetTitles - return all sheets titles

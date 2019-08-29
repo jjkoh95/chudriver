@@ -7,12 +7,6 @@ import (
 	"google.golang.org/api/docs/v1"
 )
 
-// ColType - store dtype and parseFunc
-type ColType struct {
-	dtype     int
-	parseFunc ParseFuncType
-}
-
 // ParseFuncType - wrap parsing function type
 type ParseFuncType = func(s string) interface{}
 
@@ -49,7 +43,7 @@ func parseInterface2String(val [][]interface{}) [][]string {
 // convertRowsToJSON - convert [][]string to []map[string] (json object)
 func convertRowsToJSON(val [][]string) []map[string]interface{} {
 	keys := val[0] // header is always key
-	colTypes := make(map[string]ColType)
+	parseFunc := make(map[string]ParseFuncType)
 	for col := 0; col < len(keys); col++ {
 		var hasString, hasFloat, hasInt, hasBool bool
 		for row := 1; row < len(val); row++ {
@@ -75,25 +69,13 @@ func convertRowsToJSON(val [][]string) []map[string]interface{} {
 			break
 		}
 		if hasString || (hasBool && hasInt) || (hasBool && hasFloat) {
-			colTypes[keys[col]] = ColType{
-				dtype:     DSTRING,
-				parseFunc: parseString,
-			}
+			parseFunc[keys[col]] = parseString
 		} else if hasFloat {
-			colTypes[keys[col]] = ColType{
-				dtype:     DFLOAT,
-				parseFunc: parseFloat,
-			}
+			parseFunc[keys[col]] = parseFloat
 		} else if hasInt {
-			colTypes[keys[col]] = ColType{
-				dtype:     DINT,
-				parseFunc: parseInt,
-			}
+			parseFunc[keys[col]] = parseInt
 		} else if hasBool {
-			colTypes[keys[col]] = ColType{
-				dtype:     DBOOL,
-				parseFunc: parseBool,
-			}
+			parseFunc[keys[col]] = parseBool
 		}
 	}
 
@@ -105,7 +87,7 @@ func convertRowsToJSON(val [][]string) []map[string]interface{} {
 				obj[row-1][keys[col]] = nil
 				continue
 			}
-			parsedVal := colTypes[keys[col]].parseFunc(val[row][col])
+			parsedVal := parseFunc[keys[col]](val[row][col])
 			obj[row-1][keys[col]] = parsedVal
 		}
 	}

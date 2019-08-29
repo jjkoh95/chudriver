@@ -61,6 +61,24 @@ func (service *Service) ExportSheetToJSON(sheetID, baseFilePath string) {
 	}
 }
 
+// ReadSheet - read sheet as []map[string]interface{}
+func (service *Service) ReadSheet(spreadsheetID, readRange string) []map[string]interface{} {
+	resp, err := service.Sheets.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+	if err != nil {
+		return nil
+	}
+	return convertRowsToJSON(parseInterface2String(resp.Values))
+}
+
+// ReadDoc - read doc as raw string
+func (service *Service) ReadDoc(documentID string) (string, error) {
+	doc, err := service.Docs.Documents.Get(documentID).Do()
+	if err != nil {
+		return "", err
+	}
+	return readStructuralElements(doc.Body.Content), nil
+}
+
 // ExportDoc - export doc to raw text file
 func (service *Service) ExportDoc(documentID, baseFilePath string) {
 	doc, err := service.Docs.Documents.Get(documentID).Do()

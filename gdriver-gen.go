@@ -41,7 +41,44 @@ func (service *Service) LoginSheets(credentialFile, scope string) {
 	service.Sheets, _ = sheets.New(getClient(credentialFile, scope))
 }
 
-// LoginDocs - function wrappere to login docs
+// LoginDocs - function wrapper to login docs
 func (service *Service) LoginDocs(credentialFile, scope string) {
 	service.Docs, _ = docs.New(getClient(credentialFile, scope))
+}
+
+// ExportSheetToJSON - export sheet to json file
+func (service *Service) ExportSheetToJSON(sheetID string) {
+	sheets := service.GetAllSheetTitles(sheetID)
+	for _, sheet := range sheets {
+		// making this fancy
+		go func(sheet string) {
+			resp, err := service.Sheets.Spreadsheets.Values.Get(sheetID, sheet).Do()
+			if err == nil {
+				WriteJSON(resp, sheet)
+			}
+		}(sheet)
+	}
+}
+
+// ExportDoc - export doc to raw text file
+func (service *Service) ExportDoc(documentID string) {
+	doc, err := service.Docs.Documents.Get(documentID).Do()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	filename := doc.Title
+	WriteText(readStructuralElements(doc.Body.Content), filename)
+}
+
+// GetAllSheetTitles - return all sheets titles
+func (service *Service) GetAllSheetTitles(spreadsheetID string) []string {
+	resp, err := service.Sheets.Spreadsheets.Get(spreadsheetID).Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve data from sheet: %v", err)
+	}
+	titles := make([]string, len(resp.Sheets))
+	for i, sheet := range resp.Sheets {
+		titles[i] = sheet.Properties.Title
+	}
+	return titles
 }

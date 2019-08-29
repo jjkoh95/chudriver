@@ -6,21 +6,16 @@ import (
 	"net/http"
 )
 
-// SpreadsheetCSVToJSON - This is used for public csv spreadsheet
+// SpreadsheetCSVToJSON - The easiest way to make it work - Publish as CSV
 func SpreadsheetCSVToJSON(spreadsheetURL string, jsonFilename string) {
-	resp, _ := http.Get(spreadsheetURL)
-	obj := CSVResponse2JSON(resp)
-	WriteJSON(obj, jsonFilename)
-}
-
-// CSVResponse2JSON - csv response to JSON
-func CSVResponse2JSON(resp *http.Response) interface{} {
-	reader := csv.NewReader(io.Reader(resp.Body))
-	val, err := reader.ReadAll()
-
+	resp, err := http.Get(spreadsheetURL)
 	if err != nil {
-		panic("Error reading response")
+		panic("Error reading spreadsheet")
 	}
-
-	return convertRowsToJSON(val)
+	reader := csv.NewReader(io.Reader(resp.Body))
+	obj, err := reader.ReadAll()
+	if err != nil {
+		panic("Error reading content of spreadsheet")
+	}
+	WriteJSON(obj, jsonFilename)
 }

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"mime"
 	"net/http"
+	"os"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -20,6 +22,7 @@ type Service struct {
 	Docs   *docs.Service
 }
 
+// getClient - this is some sort of middleware to connect to google
 func getClient(credentialFile, scope string) *http.Client {
 	b, err := ioutil.ReadFile(credentialFile)
 	if err != nil {
@@ -99,4 +102,50 @@ func (service *Service) GetAllSheetTitles(spreadsheetID string) []string {
 		titles[i] = sheet.Properties.Title
 	}
 	return titles
+}
+
+// DownloadFile - Download file from google drive
+func (service *Service) DownloadFile(fileID string) error {
+	return nil
+}
+
+// UploadFile - upload file to google drive
+func (service *Service) UploadFile(filename, parentID string) (*drive.File, error) {
+	mimeType := mime.TypeByExtension(filename)
+
+	f := &drive.File{
+		MimeType: mimeType,
+		Name:     filename,
+		Parents:  []string{parentID},
+	}
+
+	content, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := service.Drive.Files.Create(f).Media(content).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+// CreateFolder - create a folder in google drive
+func (service *Service) CreateFolder(folderName, parentID string) (*drive.File, error) {
+	d := &drive.File{
+		Name:     folderName,
+		MimeType: "application/vnd.google-apps.folder",
+		Parents:  []string{parentID},
+	}
+
+	file, err := service.Drive.Files.Create(d).Do()
+
+	if err != nil {
+		log.Println("Could not create dir: " + err.Error())
+		return nil, err
+	}
+
+	return file, nil
 }

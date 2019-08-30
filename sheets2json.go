@@ -6,8 +6,14 @@ import (
 	"net/http"
 )
 
-// SpreadsheetCSVToJSON - The easiest way to make it work - Publish as CSV
-func SpreadsheetCSVToJSON(spreadsheetURL string, jsonFilename string) {
+// ExportCSVSheet - The easiest way to make it work - Publish as CSV
+func ExportCSVSheet(spreadsheetURL, jsonFilename string) {
+	obj := ReadCSVSheet(spreadsheetURL)
+	WriteJSON(obj, jsonFilename)
+}
+
+// ReadCSVSheet - Read CSV sheet - return object
+func ReadCSVSheet(spreadsheetURL string) []map[string]interface{} {
 	resp, err := http.Get(spreadsheetURL)
 	if err != nil {
 		panic("Error reading spreadsheet")
@@ -17,5 +23,5 @@ func SpreadsheetCSVToJSON(spreadsheetURL string, jsonFilename string) {
 	if err != nil {
 		panic("Error reading content of spreadsheet")
 	}
-	WriteJSON(obj, jsonFilename)
+	return convertRowsToJSON(obj)
 }

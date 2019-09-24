@@ -15,14 +15,14 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-// Service - wrapper for all services
-type Service struct {
+// GDriver - Wrapper for all services
+type GDriver struct {
 	Drive  *drive.Service
 	Sheets *sheets.Service
 	Docs   *docs.Service
 }
 
-// getClient - this is some sort of middleware to connect to google
+// getClient - This is some sort of middleware to connect to google
 func getClient(credentialFile, scope string) *http.Client {
 	b, err := ioutil.ReadFile(credentialFile)
 	if err != nil {
@@ -35,28 +35,28 @@ func getClient(credentialFile, scope string) *http.Client {
 	return config.Client(context.Background())
 }
 
-// LoginDrive - function wrappr to login drive
-func (service *Service) LoginDrive(credentialFile, scope string) {
-	service.Drive, _ = drive.New(getClient(credentialFile, scope))
+// LoginDrive - Function wrapper to login drive
+func (gdriver *GDriver) LoginDrive(credentialFile, scope string) {
+	gdriver.Drive, _ = drive.New(getClient(credentialFile, scope))
 }
 
-// LoginSheets - function wrapper to login sheet
-func (service *Service) LoginSheets(credentialFile, scope string) {
-	service.Sheets, _ = sheets.New(getClient(credentialFile, scope))
+// LoginSheets - Function wrapper to login sheet
+func (gdriver *GDriver) LoginSheets(credentialFile, scope string) {
+	gdriver.Sheets, _ = sheets.New(getClient(credentialFile, scope))
 }
 
-// LoginDocs - function wrapper to login docs
-func (service *Service) LoginDocs(credentialFile, scope string) {
-	service.Docs, _ = docs.New(getClient(credentialFile, scope))
+// LoginDocs - Function wrapper to login docs
+func (gdriver *GDriver) LoginDocs(credentialFile, scope string) {
+	gdriver.Docs, _ = docs.New(getClient(credentialFile, scope))
 }
 
-// ExportSheetToJSON - export sheet to json file
-func (service *Service) ExportSheetToJSON(sheetID, baseFilePath string) {
-	sheets := service.GetAllSheetTitles(sheetID)
+// ExportSheetToJSON - Export sheet to json file
+func (gdriver *GDriver) ExportSheetToJSON(sheetID, baseFilePath string) {
+	sheets := gdriver.GetAllSheetTitles(sheetID)
 	for _, sheet := range sheets {
 		// making this fancy
 		go func(sheet string) {
-			resp, err := service.Sheets.Spreadsheets.Values.Get(sheetID, sheet).Do()
+			resp, err := gdriver.Sheets.Spreadsheets.Values.Get(sheetID, sheet).Do()
 			if err == nil {
 				WriteJSON(resp, fmt.Sprintf("%s%s", baseFilePath, sheet))
 			}
@@ -64,36 +64,51 @@ func (service *Service) ExportSheetToJSON(sheetID, baseFilePath string) {
 	}
 }
 
-// ReadSheet - read sheet as []map[string]interface{}
-func (service *Service) ReadSheet(spreadsheetID, readRange string) []map[string]interface{} {
-	resp, err := service.Sheets.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+// ReadSheet - Read sheet as []map[string]interface{}
+func (gdriver *GDriver) ReadSheet(spreadsheetID, readRange string) []map[string]interface{} {
+	resp, err := gdriver.Sheets.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {
 		return nil
 	}
 	return convertRowsToJSON(parseInterface2String(resp.Values))
 }
 
-// ReadDoc - read doc as raw string
-func (service *Service) ReadDoc(documentID string) (string, error) {
-	doc, err := service.Docs.Documents.Get(documentID).Do()
+// CreateSheet - Create a new Spreadsheet
+func (gdriver *GDriver) CreateSheet() {
+
+}
+
+// AddSheet - add a blank sheet
+func (gdriver *GDriver) AddSheet() {
+
+}
+
+// InsertRow - insert row to sheet
+func (gdriver *GDriver) InsertRow() {
+
+}
+
+// ReadDoc - Read doc as raw string
+func (gdriver *GDriver) ReadDoc(documentID string) (string, error) {
+	doc, err := gdriver.Docs.Documents.Get(documentID).Do()
 	if err != nil {
 		return "", err
 	}
 	return readStructuralElements(doc.Body.Content), nil
 }
 
-// ExportDoc - export doc to raw text file
-func (service *Service) ExportDoc(documentID, baseFilePath string) {
-	doc, err := service.Docs.Documents.Get(documentID).Do()
+// ExportDoc - Export doc to raw text file
+func (gdriver *GDriver) ExportDoc(documentID, baseFilePath string) {
+	doc, err := gdriver.Docs.Documents.Get(documentID).Do()
 	if err != nil {
 		log.Println(err.Error())
 	}
 	WriteText(readStructuralElements(doc.Body.Content), fmt.Sprintf("%s%s", baseFilePath, doc.Title))
 }
 
-// GetAllSheetTitles - return all sheets titles
-func (service *Service) GetAllSheetTitles(spreadsheetID string) []string {
-	resp, err := service.Sheets.Spreadsheets.Get(spreadsheetID).Do()
+// GetAllSheetTitles - Return all sheets titles
+func (gdriver *GDriver) GetAllSheetTitles(spreadsheetID string) []string {
+	resp, err := gdriver.Sheets.Spreadsheets.Get(spreadsheetID).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve data from sheet: %v", err)
 	}
@@ -105,12 +120,13 @@ func (service *Service) GetAllSheetTitles(spreadsheetID string) []string {
 }
 
 // DownloadFile - Download file from google drive
-func (service *Service) DownloadFile(fileID string) error {
+// TODO - needs a smart method to get mimetype
+func (gdriver *GDriver) DownloadFile(fileID string) error {
 	return nil
 }
 
-// UploadFile - upload file to google drive
-func (service *Service) UploadFile(filename, parentID string) (*drive.File, error) {
+// UploadFile - Upload file to google drive
+func (gdriver *GDriver) UploadFile(filename, parentID string) (*drive.File, error) {
 	mimeType := mime.TypeByExtension(filename)
 
 	f := &drive.File{
@@ -124,7 +140,7 @@ func (service *Service) UploadFile(filename, parentID string) (*drive.File, erro
 		return nil, err
 	}
 
-	file, err := service.Drive.Files.Create(f).Media(content).Do()
+	file, err := gdriver.Drive.Files.Create(f).Media(content).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -132,15 +148,15 @@ func (service *Service) UploadFile(filename, parentID string) (*drive.File, erro
 	return file, nil
 }
 
-// CreateFolder - create a folder in google drive
-func (service *Service) CreateFolder(folderName, parentID string) (*drive.File, error) {
+// CreateFolder - Create a folder in google drive
+func (gdriver *GDriver) CreateFolder(folderName, parentID string) (*drive.File, error) {
 	d := &drive.File{
 		Name:     folderName,
 		MimeType: "application/vnd.google-apps.folder",
 		Parents:  []string{parentID},
 	}
 
-	file, err := service.Drive.Files.Create(d).Do()
+	file, err := gdriver.Drive.Files.Create(d).Do()
 
 	if err != nil {
 		log.Println("Could not create dir: " + err.Error())

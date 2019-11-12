@@ -3,7 +3,6 @@ package chudrive
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"mime"
 	"os"
 
@@ -32,7 +31,6 @@ func (chudrive *Chudrive) CreateFolder(folderName, parentID string) (*drive.File
 	file, err := chudrive.Drive.Files.Create(d).Do()
 
 	if err != nil {
-		log.Println("Could not create dir: " + err.Error())
 		return nil, err
 	}
 

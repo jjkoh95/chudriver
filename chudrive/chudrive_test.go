@@ -67,7 +67,7 @@ func TestList(t *testing.T) {
 	}
 }
 
-func TestUploadAndDownloadFile(t *testing.T) {
+func TestUploadAndDeleteFile(t *testing.T) {
 	driveFile, err := chudriveWrapper.UploadFile(testFileName, testFilePathID)
 	if err != nil {
 		t.Error("Expected to upload file without error")

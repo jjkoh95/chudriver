@@ -91,3 +91,8 @@ func TestDownloadFile(t *testing.T) {
 		t.Error("Expected to download file without error")
 	}
 }
+
+func TestGrantPermission(t *testing.T) {
+	// create something
+	// transfer ownership
+}

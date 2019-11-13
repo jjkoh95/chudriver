@@ -113,3 +113,15 @@ func (chudrive *Chudrive) DownloadFile(filename, fileID string) error {
 func (chudrive *Chudrive) DeleteFile(fileID string) error {
 	return chudrive.Drive.Files.Delete(fileID).Do()
 }
+
+// TransferOwnership - transfer ownership
+// this is particularly useful when you are using service account to create
+func (chudrive *Chudrive) TransferOwnership(fileID, email string) error {
+	perm := drive.Permission{
+		EmailAddress: email,
+		Role:         "owner",
+		Type:         "user",
+	}
+	_, err := chudrive.Drive.Permissions.Create(fileID, &perm).TransferOwnership(true).Do()
+	return err
+}

@@ -1,5 +1,8 @@
 # chudriver
 
+[![go report card](https://goreportcard.com/badge/github.com/jjkoh95/chudriver "go report card")](https://goreportcard.com/report/github.com/jjkoh95/chudriver)
+[![GoDoc](https://godoc.org/github.com/jjkoh95/chudriver?status.svg)](https://godoc.org/github.com/jjkoh95/chudriver)
+
 ## Introduction
 This project was initiated to provide friendly APIs for the usage of spreadsheets and buckets. Then my needs expanded to other services and I hope to combine all common and useful functionalities to one place as reference and also help people to get started.
 

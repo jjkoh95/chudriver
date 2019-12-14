@@ -2,7 +2,6 @@ package chulink_test
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -12,6 +11,7 @@ import (
 )
 
 const (
+	APIKey                   = ""
 	firebaseRegisteredDomain = "chudriver.page.link"
 	longURL                  = "https://github.com/jjkoh95/chudriver"
 )
@@ -27,6 +27,7 @@ func TestMain(m *testing.M) {
 func login() {
 	clientOptions := []option.ClientOption{
 		option.WithCredentialsFile("credentials.json"),
+		// option.WithAPIKey(APIKey),
 	}
 	chulinkWrapper.Link, _ = firebasedynamiclinks.NewService(context.Background(), clientOptions...)
 }
@@ -34,7 +35,6 @@ func login() {
 func TestGenerateLink(t *testing.T) {
 	_, err := chulinkWrapper.GenerateLink(longURL, firebaseRegisteredDomain)
 	if err != nil {
-		fmt.Println(err)
 		t.Error("Should create url without error")
 	}
 }

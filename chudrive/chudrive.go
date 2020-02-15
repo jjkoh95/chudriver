@@ -14,12 +14,12 @@ const (
 	defaultPageSize = 1000
 )
 
-// Chudrive - google drive wrapper
+// Chudrive - Google drive wrapper.
 type Chudrive struct {
 	Drive *drive.Service
 }
 
-// CreateFolder - create a folder
+// CreateFolder - Create a folder.
 func (chudrive *Chudrive) CreateFolder(folderName, parentID string) (*drive.File, error) {
 
 	d := &drive.File{
@@ -37,7 +37,7 @@ func (chudrive *Chudrive) CreateFolder(folderName, parentID string) (*drive.File
 	return file, nil
 }
 
-// ListByQuery - list everything by query
+// ListByQuery - List everything by query.
 func (chudrive *Chudrive) ListByQuery(query string) (map[string]string, error) {
 	fileList, err := chudrive.Drive.Files.List().
 		PageSize(defaultPageSize).Q(query).
@@ -52,7 +52,7 @@ func (chudrive *Chudrive) ListByQuery(query string) (map[string]string, error) {
 	return res, nil
 }
 
-// ListFolder - list folder
+// ListFolder - List folder.
 func (chudrive *Chudrive) ListFolder(query string) (map[string]string, error) {
 	newQuery := fmt.Sprintf("mimeType = \"%s\"", folderMimeType)
 	if query != "" {
@@ -61,7 +61,7 @@ func (chudrive *Chudrive) ListFolder(query string) (map[string]string, error) {
 	return chudrive.ListByQuery(newQuery)
 }
 
-// ListFile - list file, it is super weird, google treats directory as files too
+// ListFile - List file, it is super weird, google treats directory as files too.
 func (chudrive *Chudrive) ListFile(query string) (map[string]string, error) {
 	newQuery := fmt.Sprintf("mimeType != \"%s\"", folderMimeType)
 	if query != "" {
@@ -70,8 +70,8 @@ func (chudrive *Chudrive) ListFile(query string) (map[string]string, error) {
 	return chudrive.ListByQuery(newQuery)
 }
 
-// UploadFile - upload file to path
-func (chudrive *Chudrive) UploadFile(filename, parentID string) (*drive.File, error) {
+// UploadFileLocal - Upload file to path.
+func (chudrive *Chudrive) UploadFileLocal(filename, parentID string) (*drive.File, error) {
 	mimeType := mime.TypeByExtension(filename)
 
 	f := &drive.File{
@@ -93,8 +93,8 @@ func (chudrive *Chudrive) UploadFile(filename, parentID string) (*drive.File, er
 	return file, nil
 }
 
-// DownloadFile - download file to local
-func (chudrive *Chudrive) DownloadFile(filename, fileID string) error {
+// DownloadFileLocal - Download file to local.
+func (chudrive *Chudrive) DownloadFileLocal(filename, fileID string) error {
 	res, err := chudrive.Drive.Files.Get(fileID).Download()
 	if err != nil {
 		return err
@@ -109,13 +109,14 @@ func (chudrive *Chudrive) DownloadFile(filename, fileID string) error {
 	return nil
 }
 
-// DeleteFile - delete file
+// DeleteFile - Delete file.
 func (chudrive *Chudrive) DeleteFile(fileID string) error {
 	return chudrive.Drive.Files.Delete(fileID).Do()
 }
 
-// TransferOwnership - transfer ownership
-// this is particularly useful when you are using service account to create
+// TransferOwnership - Transfer ownership.
+// This is particularly useful when you are using service account to create.
+// Please make sure you own whatever file instead of your service account!
 func (chudrive *Chudrive) TransferOwnership(fileID, email string) error {
 	perm := drive.Permission{
 		EmailAddress: email,

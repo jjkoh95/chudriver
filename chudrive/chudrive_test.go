@@ -52,7 +52,7 @@ func TestList(t *testing.T) {
 	}
 
 	folderQuery := fmt.Sprintf("\"%s\" in parents", testDriveID)
-	res, err = chudriveWrapper.ListFolder(folderQuery)
+	_, err = chudriveWrapper.ListFolder(folderQuery)
 	if err != nil {
 		t.Error("Expected to call ListFolder without error")
 	}
@@ -67,8 +67,8 @@ func TestList(t *testing.T) {
 	}
 }
 
-func TestUploadAndDeleteFile(t *testing.T) {
-	driveFile, err := chudriveWrapper.UploadFile(testFileName, testFilePathID)
+func TestUploadLocalAndDeleteFile(t *testing.T) {
+	driveFile, err := chudriveWrapper.UploadFileLocal(testFileName, testFilePathID)
 	if err != nil {
 		t.Error("Expected to upload file without error")
 	}
@@ -84,10 +84,9 @@ func TestUploadAndDeleteFile(t *testing.T) {
 	}
 }
 
-func TestDownloadFile(t *testing.T) {
-	err := chudriveWrapper.DownloadFile(testDownloadFileName, testDownloadFileID)
+func TestDownloadFileLocal(t *testing.T) {
+	err := chudriveWrapper.DownloadFileLocal(testDownloadFileName, testDownloadFileID)
 	if err != nil {
-		fmt.Println(err)
 		t.Error("Expected to download file without error")
 	}
 }

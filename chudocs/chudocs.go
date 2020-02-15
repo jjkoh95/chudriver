@@ -6,12 +6,12 @@ import (
 	"google.golang.org/api/docs/v1"
 )
 
-// Chudocs - google docs wrapper
+// Chudocs - Google docs wrapper.
 type Chudocs struct {
 	Docs *docs.Service
 }
 
-// ReadDocByID - read doc as raw string
+// ReadDocByID - Read doc as raw string.
 func (chudocs *Chudocs) ReadDocByID(documentID string) (string, error) {
 	doc, err := chudocs.Docs.Documents.Get(documentID).Do()
 	if err != nil {
